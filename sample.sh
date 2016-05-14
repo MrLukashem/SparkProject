@@ -1,0 +1,28 @@
+#!/bin/sh
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+echo "Running shell script"
+while read LINE; do
+   echo ${LINE} + "pizda" 
+   ls
+done
