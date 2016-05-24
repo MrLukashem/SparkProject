@@ -1,9 +1,11 @@
 package main;
 
 import org.apache.spark.SparkConf;
+import org.apache.spark.SparkFiles;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.VoidFunction;
+import org.apache.spark.metrics.source.Source;
 import utills.CustomFile;
 
 import javax.annotation.Nonnull;
@@ -54,15 +56,23 @@ public class Driver implements Serializable {
             return false;
         } */
 
+        context.addFile("/home/mrlukashem/bin/spark-1.6.1/SparkProject/testPDF.pdf");
+
+        String path = SparkFiles.get("testPDF.pdf");
+
+        System.out.println("path = " + path);
         // temporary test commends.
-        List<String> data = Arrays.asList("hi", "fucking", "mother", "fucker", "mrruuu");
+        List<String> paths = new ArrayList<>();
+        paths.add(path);
+        List<String> data = paths;
+
         JavaRDD<String> rdd = context.parallelize(data);
         JavaRDD<String> pipe = rdd.pipe(mConfigurator.mScriptName);
         pipe.foreach( new VoidFunction<String>() {
             public void call(String line) {
                 System.out.println(line); //this is dummy function call
             }});
-
+        pipe.saveAsTextFile("/home/mrlukashem/bin/res");
         return true;
     }
 

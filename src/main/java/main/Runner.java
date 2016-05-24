@@ -28,7 +28,7 @@ public class Runner {
 
         Driver.Configurator configurator =
                 new Driver.Configurator();
-        configurator.mScriptName = "/home/mrlukashem/bin/spark/SparkProject/sample.sh";
+        configurator.mScriptName = "/home/mrlukashem/bin/spark-1.6.1/SparkProject/sample.sh";
         configurator.mAppName = "SampleApp";
         internalDriverRef.configure(configurator);
         internalDriverRef.pushToRemoteMachine();
