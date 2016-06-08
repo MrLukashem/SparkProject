@@ -1,5 +1,3 @@
-package utills;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -10,7 +8,9 @@ public class CustomFile {
     protected String mPath;
 
     protected String extractName(String path) {
-        return null;
+        String[] elements = path.split("/");
+        mName = elements[elements.length - 1];
+        return mName;
     }
 
     public CustomFile(String path) {

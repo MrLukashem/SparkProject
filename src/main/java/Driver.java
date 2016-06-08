@@ -1,17 +1,14 @@
-package main;
-
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkFiles;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.VoidFunction;
-import org.apache.spark.metrics.source.Source;
-import utills.CustomFile;
+import org.apache.spark.ui.JettyUtils;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,6 +16,20 @@ import java.util.List;
  */
 public class Driver implements Serializable {
     private Driver() { }
+
+    public static void main(String[] args) throws IOException {
+        Driver internalDriverRef =
+                Driver.getDriver();
+        IOHandler ioHandler = new IOHandler(args[0]);
+
+        Driver.Configurator configurator =
+                new Driver.Configurator();
+        configurator.mScriptName = ioHandler.getScriptPath().getPath();
+        configurator.mAppName = "SampleApp";
+
+        internalDriverRef.configure(configurator);
+        internalDriverRef.pushToRemoteMachine(ioHandler.getFileToComputer(), ioHandler.getScriptPath());
+    }
 
     protected Configurator mConfigurator;
     protected List<CustomFile> mFiles
@@ -48,31 +59,37 @@ public class Driver implements Serializable {
         return context;
     }
 
-    public boolean pushToRemoteMachine() {
+    public boolean pushToRemoteMachine(List<CustomFile> files, CustomFile script) {
         JavaSparkContext context = initialize();
-        // temporary disabled.
-     /*   if (mFiles.isEmpty()) {
-            // better to trigger exception?
-            return false;
-        } */
+        for (CustomFile file : files) {
+            context.addFile(file.getPath());
+        }
 
-        context.addFile("/home/mrlukashem/bin/spark-1.6.1/SparkProject/testPDF.pdf");
+        context.addFile("/data/allin/fextorbis.py");
+        context.addFile("/data/allin/fextorbis.pyc");
+	    context.addFile("/data/allin/fextor/config");
+        context.addFile("/data/allin/fextor/fextor_service.py");
+        context.addFile("/data/allin/fextor/nkjp360-meaningless-no-prep-freq-above-3500.txt");
+        context.addFile("/data/allin/fextor/nkjp500");
+        context.addFile("/data/allin/fextor/startFex.py");
+        context.addFile("/data/allin/fextor/startFex.pyc");
+        context.addFile("/data/allin/fextor/text.ccl");
 
-        String path = SparkFiles.get("testPDF.pdf");
-
-        System.out.println("path = " + path);
-        // temporary test commends.
         List<String> paths = new ArrayList<>();
-        paths.add(path);
+        context.addFile(mConfigurator.mScriptName);
+
+        for (CustomFile file : files) {
+            paths.add(SparkFiles.get(file.getName()));
+        }
         List<String> data = paths;
 
         JavaRDD<String> rdd = context.parallelize(data);
-        JavaRDD<String> pipe = rdd.pipe(mConfigurator.mScriptName);
+        JavaRDD<String> pipe = rdd.pipe(SparkFiles.get(script.getName()));
         pipe.foreach( new VoidFunction<String>() {
             public void call(String line) {
                 System.out.println(line); //this is dummy function call
             }});
-        pipe.saveAsTextFile("/home/mrlukashem/bin/res");
+        pipe.saveAsTextFile("/root/res");
         return true;
     }
 
